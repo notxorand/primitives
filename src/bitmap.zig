@@ -131,7 +131,7 @@ fn BitmapImpl(size: usize) type {
         }
 
         /// Get the number of set bits in the bitmap.
-        pub fn count_set_bits(self: *Self) usize {
+        pub fn count_bits_set(self: *Self) usize {
             var count: usize = 0;
             for (self.bits) |byte| {
                 count += @popCount(byte);
@@ -140,8 +140,8 @@ fn BitmapImpl(size: usize) type {
         }
 
         /// Get the number of cleared bits in the bitmap.
-        pub fn count_clear_bits(self: *Self) usize {
-            return self.len() - self.count_set_bits();
+        pub fn count_bits_clear(self: *Self) usize {
+            return self.len() - self.count_bits_set();
         }
 
         // -------- Bitwise operations --------
