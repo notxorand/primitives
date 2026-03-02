@@ -3,7 +3,7 @@
 //! Skip list is a probabilistic data structure that allows efficient insertion, deletion, and search operations.
 //! It is a sorted linked list with a random number of levels, where each level is a subset of the previous level.
 //! The probability of a node having a higher level is determined by a random number generator giving it a chance of having a O(log n) search time.
-//! Inspired by [Rakator](https://github.com/Ratakor/skip/blob/master/skiplist.zig)
+//! Credit: [Rakator](https://github.com/Ratakor/skip/blob/master/skiplist.zig)
 
 const std = @import("std");
 const testing = std.testing;
@@ -28,7 +28,7 @@ fn SkipListImpl(comptime K: type, comptime V: type, comptime max_level: usize, c
         allocator: Allocator,
         rng: Rng,
         level: usize = 1,
-        max_level: usize = max_level,
+        last_inserted: ?*Node = null,
 
         /// Initialise a skip list with a given allocator and rng seed.
         pub fn init(allocator: Allocator, seed: u64) !Self {
@@ -103,6 +103,7 @@ fn SkipListImpl(comptime K: type, comptime V: type, comptime max_level: usize, c
                 node.forward[i] = update[i].forward[i];
                 update[i].forward[i] = node;
             }
+            self.last_inserted = node;
 
             return node;
         }
@@ -148,14 +149,16 @@ fn SkipListImpl(comptime K: type, comptime V: type, comptime max_level: usize, c
         pub fn length(self: *Self) usize {
             var lngth: usize = 0;
             var node = self.head.forward[0];
-            while (node != null) : (node = node.forward[0]) {
+            while (node) |n| {
                 lngth += 1;
+                node = n.forward[0];
             }
             return lngth;
         }
     };
 }
 
+/// A simple skip list implementation.
 pub const SkipList = SkipListImpl;
 
 pub fn compare(a: []const u8, b: []const u8) std.math.Order {
@@ -166,7 +169,11 @@ pub fn compareU64(a: u64, b: u64) std.math.Order {
     return std.math.order(a, b);
 }
 
-test "skip list" {
+pub fn compareI64(a: i64, b: i64) std.math.Order {
+    return std.math.order(a, b);
+}
+
+test "SkipList" {
     const allocator = std.testing.allocator;
 
     var skip_list = try SkipList([]const u8, []const u8, 16, std.Random.Pcg, compare).init(allocator, @intCast(std.time.microTimestamp()));
@@ -181,7 +188,7 @@ test "skip list" {
     try testing.expectEqualStrings("value", skip_list.search("key").?.value);
 }
 
-test "skip list delete" {
+test "SkipList delete" {
     const allocator = std.testing.allocator;
 
     var skip_list = try SkipList(u64, u64, 16, std.Random.Pcg, compareU64).init(allocator, @intCast(std.time.microTimestamp()));

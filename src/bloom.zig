@@ -55,6 +55,11 @@ fn BloomImpl(comptime size: usize, comptime HashFn: type) type {
         pub fn len(self: *Self) usize {
             return self.mask.len();
         }
+
+        /// Reset the bloom filter (clear all bits).
+        pub fn reset(self: *Self) void {
+            @memset(&self.mask.bits, 0);
+        }
     };
 }
 
@@ -124,9 +129,10 @@ fn BloomMutliHashFn(comptime size: usize, comptime HashFn: []const type) type {
     };
 }
 
-/// A bloom filter with a fixed size and a single hash function.
+/// A simple bloom filter implementation supporting a single hash function.
 pub const Bloom = BloomImpl;
-/// A bloom filter with a fixed size and multiple hash functions.
+/// A simple bloom filter implementation supporting multiple hash functions.
+///
 pub const BloomMultiHash = BloomMutliHashFn;
 
 pub const DefaultHashFn = struct {
@@ -141,7 +147,7 @@ pub const AlternateHashFn = struct {
     }
 };
 
-test "bloom" {
+test "Bloom" {
     var bloom = Bloom(100, DefaultHashFn).init();
     defer bloom.deinit();
 
@@ -154,7 +160,7 @@ test "bloom" {
     try testing.expect(bloom.len() == 100);
 }
 
-test "bloom multi hash" {
+test "Bloom multi hash" {
     var bloom = BloomMultiHash(100, &.{ DefaultHashFn, AlternateHashFn }).init();
     defer bloom.deinit();
 

@@ -12,7 +12,7 @@
 const std = @import("std");
 const testing = std.testing;
 
-fn BitmapImpl(size: usize) type {
+fn BitmapImpl(comptime size: usize) type {
     return struct {
         const Self = @This();
         const byte_size = if (size % 8 == 0) size / 8 else (size / 8) + 1;
@@ -197,9 +197,18 @@ fn BitmapImpl(size: usize) type {
     };
 }
 
+/// A simple bitmap data structure implementation.
+///
+/// Bitwise operations are implemented using the bitwise AND, OR, XOR, NOT, and
+/// AND NOT logical operators. Bitwise operations modifies the bitmap in place and
+/// returns the modified bitmap. Bitwise operations can be performed on two bitmaps
+/// of the same size.
+///
+/// > [!WARNING]
+/// > This project is currently WIP and is no where near ready for production use.
 pub const Bitmap = BitmapImpl;
 
-test "mutate bitmap" {
+test "Bitmap mutate bitmap" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -231,7 +240,7 @@ test "mutate bitmap" {
     try testing.expect(!bitmap.get(10));
 }
 
-test "read ops" {
+test "Bitmap read ops" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -244,11 +253,11 @@ test "read ops" {
     try testing.expect(!bitmap.is_dirty());
     try testing.expect(bitmap.len() == 80);
     try testing.expect(bitmap.len_bytes() == 10);
-    try testing.expect(bitmap.count_set_bits() == 4);
-    try testing.expect(bitmap.count_clear_bits() == 76);
+    try testing.expect(bitmap.count_bits_set() == 4);
+    try testing.expect(bitmap.count_bits_clear() == 76);
 }
 
-test "set/clear range" {
+test "Bitmap set/clear range" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -281,7 +290,7 @@ test "set/clear range" {
     try testing.expect(bitmap.get(10));
 }
 
-test "set/clear all" {
+test "Bitmap set/clear all" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -301,7 +310,7 @@ test "set/clear all" {
 }
 
 // TODO: fix bitwise ops and test
-test "bitwise ops and" {
+test "Bitmap bitwise ops and" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -329,7 +338,7 @@ test "bitwise ops and" {
     try testing.expect(!bitmap.get(7));
 }
 
-test "bitwise ops or" {
+test "Bitmap bitwise ops or" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -357,7 +366,7 @@ test "bitwise ops or" {
     try testing.expect(bitmap.get(7));
 }
 
-test "bitwise ops xor" {
+test "Bitmap bitwise ops xor" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -386,7 +395,7 @@ test "bitwise ops xor" {
     try testing.expect(bitmap.get(7));
 }
 
-test "bitwise ops not" {
+test "Bitmap bitwise ops not" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -402,7 +411,7 @@ test "bitwise ops not" {
     try testing.expect(!bitmap.get(3));
 }
 
-test "bitwise ops and not" {
+test "Bitmap bitwise ops and not" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
