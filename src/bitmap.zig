@@ -208,7 +208,7 @@ fn BitmapImpl(comptime size: usize) type {
 /// > This project is currently WIP and is no where near ready for production use.
 pub const Bitmap = BitmapImpl;
 
-test "Bitmap mutate bitmap" {
+test "Bitmap: mutate bitmap" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -240,7 +240,7 @@ test "Bitmap mutate bitmap" {
     try testing.expect(!bitmap.get(10));
 }
 
-test "Bitmap read ops" {
+test "Bitmap: read ops" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -257,7 +257,7 @@ test "Bitmap read ops" {
     try testing.expect(bitmap.count_bits_clear() == 76);
 }
 
-test "Bitmap set/clear range" {
+test "Bitmap: set/clear range" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -290,7 +290,7 @@ test "Bitmap set/clear range" {
     try testing.expect(bitmap.get(10));
 }
 
-test "Bitmap set/clear all" {
+test "Bitmap: set/clear all" {
     var bitmap = Bitmap(80).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -309,8 +309,7 @@ test "Bitmap set/clear all" {
     try testing.expect(!bitmap.get(79));
 }
 
-// TODO: fix bitwise ops and test
-test "Bitmap bitwise ops and" {
+test "Bitmap: bitwise ops and" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -338,7 +337,7 @@ test "Bitmap bitwise ops and" {
     try testing.expect(!bitmap.get(7));
 }
 
-test "Bitmap bitwise ops or" {
+test "Bitmap: bitwise ops or" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -395,7 +394,7 @@ test "Bitmap bitwise ops xor" {
     try testing.expect(bitmap.get(7));
 }
 
-test "Bitmap bitwise ops not" {
+test "Bitmap: bitwise ops not" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();
@@ -411,7 +410,7 @@ test "Bitmap bitwise ops not" {
     try testing.expect(!bitmap.get(3));
 }
 
-test "Bitmap bitwise ops and not" {
+test "Bitmap: bitwise ops and not" {
     var bitmap = Bitmap(8).init();
     defer bitmap.deinit();
     bitmap.prepare();

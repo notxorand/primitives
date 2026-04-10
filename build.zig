@@ -11,11 +11,11 @@ pub fn build(b: *std.Build) void {
     });
 
     // Export the module so dependents can use it (Zig 0.15+ syntax)
-    b.modules.put("zig_ds", lib_mod) catch @panic("OOM");
+    b.modules.put("primitives", lib_mod) catch @panic("OOM");
 
     const lib = b.addLibrary(.{
         .linkage = .static,
-        .name = "zig_ds",
+        .name = "primitives",
         .root_module = lib_mod,
     });
 

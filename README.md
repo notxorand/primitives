@@ -1,12 +1,24 @@
-# zig data structures
+# primitives
 
-This is a compilation of common data structures and trees in Zig. Most of these exist in the Rust ecosystem already (not standardised), so I'm mostly porting them over.
+This is a compilation of common data structures, trees, and concurrency primitives in Zig. Most of these exist in the Rust ecosystem already (not standardised), so I'm mostly porting them over.
 
-It's a work in progress, with plans for:
+## Implemented
 
+### Data Structures
 + [x] bitmap
 + [x] bloom filter
 + [x] skip list
+
+### Concurrency & Synchronization
++ [x] Arc(T) - Atomic Reference Counted smart pointer
++ [x] Mutex(T) - Generic mutex with RAII Guard pattern
+
+### Time & Ordering
++ [x] Hybrid Logical Clock (HLC) - causally consistent timestamping
++ [x] Last-Write-Wins (LWW) Registry - conflict-free replicated registry using HLC
+
+## Planned
+
 + [ ] ring buffer
 + [ ] cuckoo filter
 + [ ] merkle tree
@@ -15,4 +27,8 @@ It's a work in progress, with plans for:
 + [ ] lamport clock
 + [ ] vector clock
 
-Note: I just started writing Zig, so don't expect things to necessarily work as expected.
+## Notes
+
++ Most implementations include comprehensive test coverage.
++ Arc and Mutex can be composed for thread-safe shared mutable state (e.g., `Arc(Mutex(T))`).
++ HLC provides total ordering of events across distributed systems with causal consistency.
