@@ -181,6 +181,70 @@ pub fn compareI64(a: i64, b: i64) std.math.Order {
     return std.math.order(a, b);
 }
 
+/// Convenience type: string key -> string value
+pub const StringSkipList = SkipList;
+
+/// Convenience type: u64 key -> u64 value
+pub const U64SkipList = SkipListImpl(u64, u64, 16, std.Random.Pcg, compareU64);
+
+/// Convenience type: i64 key -> i64 value
+pub const I64SkipList = SkipListImpl(i64, i64, 16, std.Random.Pcg, compareI64);
+
+/// Builder for SkipList with sensible defaults
+pub const SkipListBuilder = struct {
+    max_level: usize = 16,
+    rng_seed: ?u64 = null,
+
+    /// Start building a SkipList
+    pub fn new() SkipListBuilder {
+        return .{};
+    }
+
+    /// Set the maximum level (depth) of the skip list
+    /// Higher values = deeper structure, better for large datasets
+    /// Default: 16 (good for millions of items)
+    pub fn withMaxLevel(self: SkipListBuilder, max_level: usize) SkipListBuilder {
+        return .{
+            .max_level = max_level,
+            .rng_seed = self.rng_seed,
+        };
+    }
+
+    /// Set the random seed for reproducible skip list structure
+    /// If not set, uses current time
+    pub fn withSeed(self: SkipListBuilder, seed: u64) SkipListBuilder {
+        return .{
+            .max_level = self.max_level,
+            .rng_seed = seed,
+        };
+    }
+
+    /// Build for small datasets (~1k items)
+    pub fn small() SkipListBuilder {
+        return .{ .max_level = 8 };
+    }
+
+    /// Build for medium datasets (~100k items)
+    pub fn medium() SkipListBuilder {
+        return .{ .max_level = 16 };
+    }
+
+    /// Build for large datasets (~millions of items)
+    pub fn large() SkipListBuilder {
+        return .{ .max_level = 24 };
+    }
+
+    /// Get effective seed (uses time if not set)
+    pub fn getSeed(self: SkipListBuilder) u64 {
+        return self.rng_seed orelse @intCast(std.time.microTimestamp());
+    }
+
+    /// Build the SkipList with configured parameters
+    pub fn build(self: SkipListBuilder, allocator: Allocator) !SkipList {
+        return try SkipList.init(allocator, self.getSeed());
+    }
+};
+
 test "SkipList: insert/search" {
     const allocator = std.testing.allocator;
 

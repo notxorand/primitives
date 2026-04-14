@@ -156,6 +156,15 @@ pub const DetailedCausalTag = struct {
 
 pub const UnitCausalTag = void;
 
+/// Convenience type alias: LwwRegistry with SimpleCausalTag
+pub const SimpleLwwRegistry = LwwRegistry(SimpleCausalTag);
+
+/// Convenience type alias: LwwRegistry with DetailedCausalTag
+pub const DetailedLwwRegistry = LwwRegistry(DetailedCausalTag);
+
+/// Convenience type alias: LwwRegistry with no causal tag
+pub const VoidLwwRegistry = LwwRegistry(void);
+
 // Tests with SimpleCausalTag
 
 test "LwwRegistry(SimpleCausalTag): basic put and get" {
@@ -328,4 +337,42 @@ test "LwwRegistry(void): merge with void causal tag" {
 
     try reg_a.merge(&reg_b);
     try testing.expectApproxEqAbs(@as(f64, 2.5), reg_a.get("x").?.value.Float, 0.001);
+}
+
+// Tests with convenience type aliases
+
+test "SimpleLwwRegistry: convenience type alias" {
+    var reg: SimpleLwwRegistry = undefined;
+    reg = SimpleLwwRegistry.init(testing.allocator);
+    defer reg.deinit();
+
+    const ts = Timestamp{ .wall = 100, .logical = 0, .node_id = 1 };
+    try testing.expect(try reg.put("x", ts, .{ .Int = 1 }, .{ .cause = 1 }));
+    try testing.expectEqual(@as(i64, 1), reg.get("x").?.value.Int);
+}
+
+test "DetailedLwwRegistry: convenience type alias" {
+    var reg: DetailedLwwRegistry = undefined;
+    reg = DetailedLwwRegistry.init(testing.allocator);
+    defer reg.deinit();
+
+    const ts = Timestamp{ .wall = 100, .logical = 0, .node_id = 1 };
+    const tag: DetailedCausalTag = .{
+        .cause = 42,
+        .entity = 10,
+        .node = "node1",
+    };
+    try testing.expect(try reg.put("metric", ts, .{ .Float = 3.14 }, tag));
+    const entry = reg.get("metric").?;
+    try testing.expectApproxEqAbs(@as(f64, 3.14), entry.value.Float, 0.001);
+}
+
+test "VoidLwwRegistry: convenience type alias" {
+    var reg: VoidLwwRegistry = undefined;
+    reg = VoidLwwRegistry.init(testing.allocator);
+    defer reg.deinit();
+
+    const ts = Timestamp{ .wall = 100, .logical = 0, .node_id = 1 };
+    try testing.expect(try reg.put("val", ts, .{ .Float = 2.71 }, {}));
+    try testing.expectApproxEqAbs(@as(f64, 2.71), reg.get("val").?.value.Float, 0.001);
 }
